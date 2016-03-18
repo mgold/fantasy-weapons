@@ -43,7 +43,8 @@ setup =
         --spawnProb generator
         (Random.map Random.oneIn <| Random.int 1 7)
         --growth factor
-        (Random.float 1.0001 1.3)
+        (Random.oneIn 10 `Random.andThen` \b ->
+          if b then Random.choice 1.5 1.001 else Random.float 1.01 1.3)
   in
     Random.map3
       (\f hue dhue ->

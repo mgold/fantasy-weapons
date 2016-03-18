@@ -22,7 +22,6 @@ genBrown =
     (Color.hsl <| degrees 40)
     (Random.float 0.57 1)
     (Random.float 0.12 0.25)
-    |> Random.map (Debug.log "Brown")
 
 
 init : ParticleSystem -> Generator Weapon
