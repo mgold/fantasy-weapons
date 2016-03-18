@@ -29,12 +29,15 @@ type alias ParticleSystem =
 setup : Generator ParticleSystem
 setup =
   let
+    sprayAngle =
+      turns (3 / 8)
+
     system spread hue dhue =
-      ParticleSystem (turns 0.25) spread (Color.hsl hue 0.9 0.5) (Color.hsl (hue + dhue) 1 0.6)
+      ParticleSystem sprayAngle spread (Color.hsl hue 0.9 0.5) (Color.hsl (hue + dhue) 1 0.6)
   in
     Random.map3
       system
-      (Random.float 0 (turns (1 / 12)))
+      (Random.float 0 (turns 0.1))
       (Random.float 0 (turns 1))
       (Random.choice (degrees -30) (degrees 30))
 
@@ -49,7 +52,7 @@ init { sprayAngle, spreadAngle, primary, accent } =
       Random.float (sprayAngle - spreadAngle) (sprayAngle + spreadAngle)
 
     rad =
-      Random.float 0.1 0.5
+      Random.float 0.04 0.1
 
     clr =
       Random.choice primary accent
@@ -66,7 +69,7 @@ update dt p =
     ( x, y ) =
       p.pos
   in
-    { p | pos = ( x + dx * dt, y + dx * dt ), radius = p.radius * 1.1 }
+    { p | pos = ( x + dx * dt, y + dy * dt ), radius = p.radius * 1.1 }
 
 
 alpha : Particle -> Float

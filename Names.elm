@@ -1,4 +1,4 @@
-module Names (generate) where
+module Names (generate, typeface) where
 
 import Random.PCG as Random exposing (Seed, Generator)
 import Graphics.Element
@@ -63,6 +63,11 @@ genName2 =
 generate : Generator String
 generate =
   pickStrings [] [ genName1, genName2 ]
+
+
+typeface : Generator String
+typeface =
+  pickStrings [ "Copperplate", "Luminari", "Herculanum" ] []
 
 
 

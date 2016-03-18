@@ -20,6 +20,7 @@ type alias Model =
   , particles : List Particle
   , system : ParticleSystem
   , name : String
+  , typeface : String
   , seed : Seed
   }
 
@@ -28,7 +29,7 @@ init : Seed -> Model
 init seed =
   let
     gen =
-      Random.map2 (Model 0 []) Particle.setup Names.generate
+      Random.map3 (Model 0 []) Particle.setup Names.generate Names.typeface
 
     ( seedToModel, seed1 ) =
       Random.generate gen seed
@@ -120,8 +121,7 @@ view model =
       400
 
     fmtText =
-      -- TODO pick typeface at random
-      Text.fromString >> Text.color Color.white >> Text.height 20 >> Text.typeface [ "Copperplate", "Luminari", "Herculanum" ] >> Collage.text
+      Text.fromString >> Text.color Color.white >> Text.height 20 >> Text.typeface [ model.typeface ] >> Collage.text
   in
     Collage.collage
       s
