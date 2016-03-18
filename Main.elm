@@ -55,7 +55,7 @@ type Action
 actions =
   let
     ticks =
-      Signal.map Tick <| Time.fps 30
+      Signal.map Tick <| Time.fps 60
 
     regen =
       Signal.filterMap
@@ -98,8 +98,13 @@ maybeSpawnParticle model =
         Nothing ->
           xs
 
+    ( pos, sprayAngle ) =
+      Weapon.particleOrigin model.clock model.weapon
+
     maybeParticle =
-      Random.maybe model.system.spawnProb (Particle.init model.system)
+      Particle.init sprayAngle model.system
+        |> Random.map (\p -> { p | pos = pos })
+        |> Random.maybe model.system.spawnProb
 
     ( mpart, seed1 ) =
       Random.generate maybeParticle model.seed
@@ -114,24 +119,6 @@ model =
       Random.initialSeed2 734080189 3044306560
   in
     Signal.foldp update (init seed) actions
-
-
-flickBetween : Float -> Float -> Float -> Float
-flickBetween a b x =
-  let
-    integer =
-      floor x
-
-    t =
-      toFloat (integer % 1) + x - toFloat integer
-
-    scale =
-      if t < 0.88 then
-        sin (2.1 * t)
-      else
-        1.33 * (sin (10 * t + 0.9) + 0.995)
-  in
-    a + (b - a) * scale
 
 
 view model =
@@ -149,35 +136,13 @@ view model =
     particles =
       List.map Particle.view model.particles
         |> Collage.group
-        |> Collage.moveX (Weapon.length model.weapon / 2)
-
-    rotateAroundX centerOfRotation angle forms =
-      let
-        moveOut =
-          Transform2D.translation centerOfRotation 0
-
-        moveDown =
-          Transform2D.translation 0 -80
-
-        rot =
-          Transform2D.rotation angle
-
-        tform =
-          moveOut
-            `Transform2D.multiply` moveDown
-            `Transform2D.multiply` rot
-            `Transform2D.multiply` moveOut
-      in
-        Collage.groupTransform tform forms
   in
     Collage.collage
       s
       s
       [ Collage.square (toFloat s) |> filled Color.black
-      , [ Weapon.view model.weapon, particles ]
-          |> rotateAroundX
-              (Weapon.length model.weapon / 2.4)
-              (flickBetween (turns 0.55) (turns 0.24) (model.clock / 3000))
+      , particles
+      , Weapon.view model.clock model.weapon
       , fmtText model.name |> Collage.moveY (toFloat <| -s // 2 + 30)
       ]
 

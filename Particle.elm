@@ -39,9 +39,9 @@ setup =
         --spreadAngle
         (Random.float 0 (turns 0.1))
         --maxRadius generator
-        (Random.map2 (\a b -> Random.float a (a + b)) (Random.float 5 30) (Random.float 10 40))
+        (Random.map2 (\a b -> Random.float a (a + b)) (Random.float 5 35) (Random.float 10 50))
         --spawnProb generator
-        (Random.map Random.oneIn <| Random.int 2 10)
+        (Random.map Random.oneIn <| Random.int 1 7)
         --growth factor
         (Random.float 1.0001 1.3)
   in
@@ -54,14 +54,14 @@ setup =
       (Random.choice (degrees -30) (degrees 30))
 
 
-init : ParticleSystem -> Generator Particle
-init { maxRadius, spreadAngle, growth, primary, accent } =
+init : Float -> ParticleSystem -> Generator Particle
+init sprayAngle { maxRadius, spreadAngle, growth, primary, accent } =
   let
     particle maxR clr polarVel =
       Particle 1 maxR growth ( 0, 0 ) (fromPolar polarVel) clr
 
     angle =
-      Random.float -spreadAngle spreadAngle
+      Random.float (sprayAngle-spreadAngle) (sprayAngle+spreadAngle)
 
     rad =
       Random.float 0.02 0.1
