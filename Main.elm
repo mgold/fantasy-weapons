@@ -2,7 +2,7 @@ module Main (..) where
 
 import Random.PCG as Random exposing (Seed, Generator)
 import Graphics.Element
-import Graphics.Collage as Collage exposing (circle, filled, move, alpha)
+import Graphics.Collage as Collage exposing (circle, rect, filled, move, rotate, alpha)
 import Keyboard
 import Time exposing (Time)
 import Text
@@ -121,13 +121,30 @@ view model =
       400
 
     fmtText =
-      Text.fromString >> Text.color Color.white >> Text.height 20 >> Text.typeface [ model.typeface ] >> Collage.text
+      Text.fromString
+        >> Text.color Color.white
+        >> Text.height 20
+        >> Text.typeface [ model.typeface ]
+        >> Collage.text
+
+    wandLength =
+      200
+
+    staff =
+      rect wandLength 10 |> filled Color.brown
+
+    particles =
+      List.map Particle.view model.particles
+        |> Collage.group
+        |> Collage.moveX (wandLength / 2)
   in
     Collage.collage
       s
       s
       [ Collage.square (toFloat s) |> filled Color.black
-      , List.map Particle.view model.particles |> Collage.group
+      , Collage.group [ staff, particles ]
+          |> rotate (turns (3 / 8))
+          |> move ( 0.2 * wandLength, -0.2 * wandLength )
       , fmtText model.name |> Collage.moveY (toFloat <| -s // 2 + 30)
       ]
 

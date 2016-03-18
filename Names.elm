@@ -52,10 +52,10 @@ genName2 : Generator String
 genName2 =
   let
     person =
-      pickStrings [ "Err-mor", "Wyvirnn", "Vaelgoff", "Agamemnon", "Saturn", "Zeus", "Atlas" ] []
+      pickStrings [ "Err-mor", "Wyvirnn", "Vaelgoff", "Aetravir", "Agamemnon", "Saturn", "Zeus", "Atlas" ] []
 
     situation =
-      pickStrings [ "Folly", "Last Resort", "Woe", "Terror", "Bane", "Gamble", "Abomination" ] []
+      pickStrings [ "Folly", "Last Resort", "Woe", "Terror", "Bane", "Gamble", "Abomination", "Regret" ] []
   in
     Random.map2 (\a b -> a ++ "'s " ++ b) person situation
 
@@ -72,45 +72,45 @@ typeface =
 
 
 {-
-init : Model
-init =
-  let
-    seed =
-      Random.initialSeed2 734080189 3044306560
-  in
-    uncurry Model <| Random.generate genName seed
+   init : Model
+   init =
+     let
+       seed =
+         Random.initialSeed2 734080189 3044306560
+     in
+       uncurry Model <| Random.generate genName seed
 
 
-type Action
-  = Regen
+   type Action
+     = Regen
 
 
-actions =
-  Signal.filterMap
-    (\b ->
-      if b then
-        Just Regen
-      else
-        Nothing
-    )
-    Regen
-    Keyboard.space
+   actions =
+     Signal.filterMap
+       (\b ->
+         if b then
+           Just Regen
+         else
+           Nothing
+       )
+       Regen
+       Keyboard.space
 
 
-update : Action -> Model -> Model
-update _ { seed } =
-  uncurry Model <| Random.generate genName seed
+   update : Action -> Model -> Model
+   update _ { seed } =
+     uncurry Model <| Random.generate genName seed
 
 
-model : Signal Model
-model =
-  Signal.foldp update init actions
+   model : Signal Model
+   model =
+     Signal.foldp update init actions
 
 
-view { name } =
-  Graphics.Element.show name
+   view { name } =
+     Graphics.Element.show name
 
 
-main =
-  Signal.map view model
+   main =
+     Signal.map view model
 -}
