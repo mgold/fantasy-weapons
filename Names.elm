@@ -31,13 +31,13 @@ genName1 : Generator String
 genName1 =
   let
     adj =
-      pickStrings [ "", "", "", "Legendary ", "Fabled ", "Cursed ", "Sacred ", "Enchanted " ] []
+      pickStrings [ "", "", "", "", "", "Legendary ", "Fabled ", "Cursed ", "Sacred ", "Enchanted ", "One ", "Second " ] []
 
     weapon =
       pickStrings [ "Wand", "Staff", "Rod", "Source", "Scepter", "Mace", "Caduceus" ] []
 
     topic =
-      pickStrings [ "Healing", "Fire", "Levitation", "Mind Control", "Power", "Electricity", "Misfortune" ] []
+      pickStrings [ "Healing", "Fire", "Levitation", "Mind Control", "Power", "Light", "Darkness", "Flight", "Electricity", "Misfortune" ] []
   in
     Random.map3 (\a b c -> "The " ++ a ++ b ++ " of " ++ c) adj weapon topic
 
@@ -49,7 +49,7 @@ genName2 =
       pickStrings [ "Err-mor", "Wyvirnn", "Vaelgoff", "Aetravir", "Agamemnon", "Saturn", "Zeus", "Atlas" ] []
 
     situation =
-      pickStrings [ "Folly", "Last Resort", "Woe", "Terror", "Bane", "Gamble", "Abomination", "Regret" ] []
+      pickStrings [ "Folly", "Last Resort", "Woe", "Terror", "Bane", "Gamble", "Abomination", "Regret", "Mistake" ] []
   in
     Random.map2 (\a b -> a ++ "'s " ++ b) person situation
 

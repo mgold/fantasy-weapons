@@ -7,8 +7,10 @@ import Keyboard
 import Time exposing (Time)
 import Text
 import Color exposing (Color)
+import Transform2D
 import Particle exposing (Particle, ParticleSystem)
 import Names
+import Weapon exposing (Weapon)
 
 
 sprayDirection =
@@ -19,6 +21,7 @@ type alias Model =
   { clock : Time
   , particles : List Particle
   , system : ParticleSystem
+  , weapon : Weapon
   , name : String
   , typeface : String
   , seed : Seed
@@ -28,11 +31,15 @@ type alias Model =
 init : Seed -> Model
 init seed =
   let
-    baseModel =
-      Model 0 []
+    baseModel ( system, weapon ) =
+      Model 0 [] system weapon
+
+    genSystemAndWeapon : Generator ( ParticleSystem, Weapon )
+    genSystemAndWeapon =
+      Particle.setup `Random.andThen` (\sys -> Weapon.init sys |> Random.map (\wep -> ( sys, wep )))
 
     gen =
-      Random.map3 baseModel Particle.setup Names.generate Names.typeface
+      Random.map3 baseModel genSystemAndWeapon Names.generate Names.typeface
 
     ( seedToModel, seed1 ) =
       Random.generate gen seed
@@ -109,6 +116,24 @@ model =
     Signal.foldp update (init seed) actions
 
 
+flickBetween : Float -> Float -> Float -> Float
+flickBetween a b x =
+  let
+    integer =
+      floor x
+
+    t =
+      toFloat (integer % 1) + x - toFloat integer
+
+    scale =
+      if t < 0.88 then
+        sin (2.1 * t)
+      else
+        1.33 * (sin (10 * t + 0.9) + 0.995)
+  in
+    a + (b - a) * scale
+
+
 view model =
   let
     s =
@@ -121,24 +146,38 @@ view model =
         >> Text.typeface [ model.typeface ]
         >> Collage.text
 
-    wandLength =
-      200
-
-    staff =
-      rect wandLength 10 |> filled Color.brown
-
     particles =
       List.map Particle.view model.particles
         |> Collage.group
-        |> Collage.moveX (wandLength / 2)
+        |> Collage.moveX (Weapon.length model.weapon / 2)
+
+    rotateAroundX centerOfRotation angle forms =
+      let
+        moveOut =
+          Transform2D.translation centerOfRotation 0
+
+        moveDown =
+          Transform2D.translation 0 -80
+
+        rot =
+          Transform2D.rotation angle
+
+        tform =
+          moveOut
+            `Transform2D.multiply` moveDown
+            `Transform2D.multiply` rot
+            `Transform2D.multiply` moveOut
+      in
+        Collage.groupTransform tform forms
   in
     Collage.collage
       s
       s
       [ Collage.square (toFloat s) |> filled Color.black
-      , Collage.group [ staff, particles ]
-          |> rotate (turns (3 / 8))
-          |> move ( 0.2 * wandLength, -0.2 * wandLength )
+      , [ Weapon.view model.weapon, particles ]
+          |> rotateAroundX
+              (Weapon.length model.weapon / 2.4)
+              (flickBetween (turns 0.55) (turns 0.24) (model.clock / 3000))
       , fmtText model.name |> Collage.moveY (toFloat <| -s // 2 + 30)
       ]
 
