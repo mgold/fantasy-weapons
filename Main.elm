@@ -10,7 +10,7 @@ import Color exposing (Color)
 import Transform2D
 import Particle exposing (Particle, ParticleSystem)
 import Names
-import Weapon exposing (Weapon)
+import Wand exposing (Wand)
 
 
 sprayDirection =
@@ -21,7 +21,7 @@ type alias Model =
   { clock : Time
   , particles : List Particle
   , system : ParticleSystem
-  , weapon : Weapon
+  , wand : Wand
   , name : String
   , typeface : List String
   , seed : Seed
@@ -31,15 +31,15 @@ type alias Model =
 init : Seed -> Model
 init seed =
   let
-    baseModel ( system, weapon ) =
-      Model 0 [] system weapon
+    baseModel ( system, wand ) =
+      Model 0 [] system wand
 
-    genSystemAndWeapon : Generator ( ParticleSystem, Weapon )
-    genSystemAndWeapon =
-      Particle.setup `Random.andThen` (\sys -> Weapon.init sys |> Random.map (\wep -> ( sys, wep )))
+    genSystemAndwand : Generator ( ParticleSystem, Wand )
+    genSystemAndwand =
+      Particle.setup `Random.andThen` (\sys -> Wand.init sys |> Random.map (\wep -> ( sys, wep )))
 
     gen =
-      Random.map3 baseModel genSystemAndWeapon Names.generate Names.typeface
+      Random.map3 baseModel genSystemAndwand Names.generate Names.typeface
 
     ( seedToModel, seed1 ) =
       Random.generate gen seed
@@ -99,7 +99,7 @@ maybeSpawnParticle model =
           xs
 
     ( pos, sprayAngle ) =
-      Weapon.particleOrigin model.clock model.weapon
+      Wand.particleOrigin model.clock model.wand
 
     maybeParticle =
       Particle.init sprayAngle model.system
@@ -142,7 +142,7 @@ view model =
       s
       [ Collage.square (toFloat s) |> filled Color.black
       , particles
-      , Weapon.view model.clock model.weapon
+      , Wand.view model.clock model.wand
       , fmtText model.name |> Collage.moveY (toFloat <| -s // 2 + 30)
       ]
 

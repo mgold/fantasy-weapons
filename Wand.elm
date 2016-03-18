@@ -1,4 +1,4 @@
-module Weapon (Weapon, init, length, particleOrigin, view) where
+module Wand (Wand, Embellishment, init, particleOrigin, view) where
 
 import Random.PCG as Random exposing (Seed, Generator)
 import Graphics.Collage as Collage exposing (rect, ngon, circle, filled, move)
@@ -6,10 +6,6 @@ import Color exposing (Color)
 import Time exposing (Time)
 import Transform2D
 import Particle exposing (ParticleSystem)
-
-
-type Weapon
-  = Wand WandInfo
 
 
 type Embellishment
@@ -22,7 +18,7 @@ type Embellishment
   | Crossguard Color
 
 
-type alias WandInfo =
+type alias Wand =
   { primary : Color, accent : Color, length : Float, width : Float, embellishment : Embellishment }
 
 
@@ -34,11 +30,10 @@ genBrown =
     (Random.float 0.12 0.25)
 
 
-init : ParticleSystem -> Generator Weapon
+init : ParticleSystem -> Generator Wand
 init system =
-  Random.map5 WandInfo genBrown genBrown (Random.float 150 280) (Random.float 2 12) (genEmbellishment system)
+  Random.map5 Wand genBrown genBrown (Random.float 150 280) (Random.float 2 12) (genEmbellishment system)
     |> Random.map verifyEmbellishment
-    |> Random.map Wand
 
 
 genEmbellishment : ParticleSystem -> Generator Embellishment
@@ -78,7 +73,7 @@ genEmbellishment { primary, accent } =
 
 {-| Not all embellishments look good on thin wands.
 -}
-verifyEmbellishment : WandInfo -> WandInfo
+verifyEmbellishment : Wand -> Wand
 verifyEmbellishment wand =
   if wand.width > 5 then
     wand
@@ -94,20 +89,13 @@ verifyEmbellishment wand =
         wand
 
 
-length : Weapon -> Float
-length weapon =
-  case weapon of
-    Wand { length } ->
-      length
-
-
 {-| At a given time, provides the origin of particles and which direction they should go.
 -}
-particleOrigin : Time -> Weapon -> ( ( Float, Float ), Float )
-particleOrigin t w =
+particleOrigin : Time -> Wand -> ( ( Float, Float ), Float )
+particleOrigin t wand =
   let
     r =
-      length w * 0.9
+      wand.length * 0.9
 
     theta =
       wandAngle t
@@ -115,18 +103,11 @@ particleOrigin t w =
     ( x, y ) =
       fromPolar ( r, theta )
   in
-    ( ( 20 + length w / 2.4 + x, y - 100 ), theta )
+    ( ( 20 + wand.length / 2.4 + x, y - 100 ), theta )
 
 
-view : Time -> Weapon -> Collage.Form
-view t weapon =
-  case weapon of
-    Wand info ->
-      drawWand t info
-
-
-drawWand : Time -> WandInfo -> Collage.Form
-drawWand t ({ primary, accent, length, width } as wand) =
+view : Time -> Wand -> Collage.Form
+view t ({ primary, accent, length, width } as wand) =
   let
     handleLength =
       0.3 * length
@@ -191,7 +172,7 @@ rotateAroundX centerOfRotation angle forms =
     Collage.groupTransform tform forms
 
 
-embellishmentForm : WandInfo -> Collage.Form
+embellishmentForm : Wand -> Collage.Form
 embellishmentForm wand =
   case wand.embellishment of
     EndGrips ->
