@@ -28,8 +28,11 @@ type alias Model =
 init : Seed -> Model
 init seed =
   let
+    baseModel =
+      Model 0 []
+
     gen =
-      Random.map3 (Model 0 []) Particle.setup Names.generate Names.typeface
+      Random.map3 baseModel Particle.setup Names.generate Names.typeface
 
     ( seedToModel, seed1 ) =
       Random.generate gen seed
@@ -88,17 +91,12 @@ maybeSpawnParticle model =
         Nothing ->
           xs
 
+    -- TODO move to system
     smallProb =
-      Random.map (\i -> i == 0) <| Random.int 0 4
+      Random.oneIn 5
 
     maybeParticle =
-      smallProb
-        `Random.andThen` (\b ->
-                            if b then
-                              Random.map Just <| Particle.init model.system
-                            else
-                              Random.constant Nothing
-                         )
+      Random.maybe smallProb (Particle.init model.system)
 
     ( mpart, seed1 ) =
       Random.generate maybeParticle model.seed

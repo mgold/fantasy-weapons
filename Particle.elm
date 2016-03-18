@@ -11,6 +11,7 @@ import Color exposing (Color)
 type alias Particle =
   { radius : Float
   , maxRadius : Float
+  , growth : Float
   , pos : ( Float, Float )
   , vel : ( Float, Float )
   , color : Color
@@ -22,6 +23,9 @@ type alias Particle =
 type alias ParticleSystem =
   { spreadAngle : Float
   , maxRadius : Generator Float
+  , growth :
+      Float
+      -- Idea: generator for probability of new particle, and of accent vs primary
   , primary : Color
   , accent : Color
   }
@@ -30,26 +34,35 @@ type alias ParticleSystem =
 setup : Generator ParticleSystem
 setup =
   let
-    system spread maxR hue dhue =
-      ParticleSystem spread maxR (Color.hsl hue 0.9 0.5) (Color.hsl (hue + dhue) 1 0.6)
+    partial =
+      Random.map3
+        ParticleSystem
+        --spreadAngle
+        (Random.float 0 (turns 0.1))
+        --maxRadius generator
+        (Random.map2 (\a b -> Random.float a (a + b)) (Random.float 5 30) (Random.float 10 40))
+        --growth factor
+        (Random.float 1.0001 1.3)
   in
-    Random.map4
-      system
-      (Random.float 0 (turns 0.1))
-      (Random.map2 (\a b -> Random.float a (a + b)) (Random.float 5 30) (Random.float 10 40))
+    Random.map3
+      (\f hue dhue ->
+        f (Color.hsl hue 0.9 0.5) (Color.hsl (hue + dhue) 1 0.6)
+      )
+      partial
       (Random.float 0 (turns 1))
       (Random.choice (degrees -30) (degrees 30))
 
 
 init : ParticleSystem -> Generator Particle
-init { maxRadius, spreadAngle, primary, accent } =
+init { maxRadius, spreadAngle, growth, primary, accent } =
   let
     particle maxR clr polarVel =
-      Particle 1 maxR ( 0, 0 ) (fromPolar polarVel) clr
+      Particle 1 maxR growth ( 0, 0 ) (fromPolar polarVel) clr
 
     angle =
       Random.float -spreadAngle spreadAngle
 
+    -- move this to system too?
     rad =
       Random.float 0.02 0.1
 
@@ -68,7 +81,7 @@ update dt p =
     ( x, y ) =
       p.pos
   in
-    { p | pos = ( x + dx * dt, y + dy * dt ), radius = p.radius * 1.1 }
+    { p | pos = ( x + dx * dt, y + dy * dt ), radius = p.radius * p.growth }
 
 
 alpha : Particle -> Float

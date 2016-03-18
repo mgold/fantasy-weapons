@@ -5,12 +5,6 @@ import Graphics.Element
 import Keyboard
 
 
-type alias Model =
-  { name : String
-  , seed : Seed
-  }
-
-
 pickOne : List (Generator String) -> Generator String
 pickOne xs =
   let
@@ -72,6 +66,12 @@ typeface =
 
 
 {-
+   type alias Model =
+     { name : String
+     , seed : Seed
+     }
+
+
    init : Model
    init =
      let
