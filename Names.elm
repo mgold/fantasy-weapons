@@ -83,6 +83,9 @@ genName1 =
 genName2 : Generator String
 genName2 =
   let
+    element =
+      pickStrings [ "Earth", "Water", "Fire", "Air" ] []
+
     person =
       pickStrings
         [ "Err-mor"
@@ -97,7 +100,8 @@ genName2 =
         , "Athena"
         , "Hera"
         ]
-        []
+        [ Random.map (\elem -> elem ++ " Elemental") element
+        ]
 
     situation =
       pickStrings
