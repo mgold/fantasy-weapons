@@ -48,7 +48,7 @@ type Action
 actions =
   let
     ticks =
-      Signal.map Tick <| Time.fps 20
+      Signal.map Tick <| Time.fps 30
 
     regen =
       Signal.filterMap
@@ -91,12 +91,8 @@ maybeSpawnParticle model =
         Nothing ->
           xs
 
-    -- TODO move to system
-    smallProb =
-      Random.oneIn 5
-
     maybeParticle =
-      Random.maybe smallProb (Particle.init model.system)
+      Random.maybe model.system.spawnProb (Particle.init model.system)
 
     ( mpart, seed1 ) =
       Random.generate maybeParticle model.seed

@@ -23,9 +23,8 @@ type alias Particle =
 type alias ParticleSystem =
   { spreadAngle : Float
   , maxRadius : Generator Float
-  , growth :
-      Float
-      -- Idea: generator for probability of new particle, and of accent vs primary
+  , spawnProb : Generator Bool
+  , growth : Float
   , primary : Color
   , accent : Color
   }
@@ -35,12 +34,14 @@ setup : Generator ParticleSystem
 setup =
   let
     partial =
-      Random.map3
+      Random.map4
         ParticleSystem
         --spreadAngle
         (Random.float 0 (turns 0.1))
         --maxRadius generator
         (Random.map2 (\a b -> Random.float a (a + b)) (Random.float 5 30) (Random.float 10 40))
+        --spawnProb generator
+        (Random.map Random.oneIn <| Random.int 2 10)
         --growth factor
         (Random.float 1.0001 1.3)
   in
@@ -62,7 +63,6 @@ init { maxRadius, spreadAngle, growth, primary, accent } =
     angle =
       Random.float -spreadAngle spreadAngle
 
-    -- move this to system too?
     rad =
       Random.float 0.02 0.1
 
