@@ -23,7 +23,7 @@ type alias Model =
   , system : ParticleSystem
   , weapon : Weapon
   , name : String
-  , typeface : String
+  , typeface : List String
   , seed : Seed
   }
 
@@ -130,7 +130,7 @@ view model =
       Text.fromString
         >> Text.color Color.white
         >> Text.height 20
-        >> Text.typeface [ model.typeface ]
+        >> Text.typeface model.typeface
         >> Collage.text
 
     particles =

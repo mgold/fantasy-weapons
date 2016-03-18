@@ -31,13 +31,51 @@ genName1 : Generator String
 genName1 =
   let
     adj =
-      pickStrings [ "", "", "", "", "", "Legendary ", "Fabled ", "Cursed ", "Sacred ", "Enchanted ", "One ", "Second " ] []
+      pickStrings
+        [ ""
+        , ""
+        , ""
+        , ""
+        , ""
+        , "Legendary "
+        , "Fabled "
+        , "Ancient "
+        , "Cursed "
+        , "Sacred "
+        , "Enchanted "
+        , "One "
+        , "Second "
+        ]
+        []
 
     weapon =
-      pickStrings [ "Wand", "Staff", "Rod", "Source", "Scepter", "Mace", "Caduceus" ] []
+      pickStrings
+        [ "Wand"
+        , "Staff"
+        , "Rod"
+        , "Source"
+        , "Scepter"
+        , "Mace"
+        , "Caduceus"
+        , "Stave"
+        ]
+        []
 
     topic =
-      pickStrings [ "Healing", "Fire", "Levitation", "Mind Control", "Power", "Light", "Darkness", "Flight", "Electricity", "Misfortune" ] []
+      pickStrings
+        [ "Healing"
+        , "Fire"
+        , "Levitation"
+        , "Mind Control"
+        , "Power"
+        , "Light"
+        , "Darkness"
+        , "Flight"
+        , "Invisibility"
+        , "Electricity"
+        , "Misfortune"
+        ]
+        []
   in
     Random.map3 (\a b c -> "The " ++ a ++ b ++ " of " ++ c) adj weapon topic
 
@@ -46,10 +84,36 @@ genName2 : Generator String
 genName2 =
   let
     person =
-      pickStrings [ "Err-mor", "Wyvirnn", "Vaelgoff", "Aetravir", "Agamemnon", "Saturn", "Zeus", "Atlas" ] []
+      pickStrings
+        [ "Err-mor"
+        , "Wyvirnn"
+        , "Vaelgoff"
+        , "Aetravir"
+        , "Ormin-Shad"
+        , "Agamemnon"
+        , "Saturn"
+        , "Zeus"
+        , "Atlas"
+        , "Athena"
+        , "Hera"
+        ]
+        []
 
     situation =
-      pickStrings [ "Folly", "Last Resort", "Woe", "Terror", "Bane", "Gamble", "Abomination", "Regret", "Mistake" ] []
+      pickStrings
+        [ "Folly"
+        , "Last Resort"
+        , "Woe"
+        , "Terror"
+        , "Bane"
+        , "Gamble"
+        , "Abomination"
+        , "Regret"
+        , "Mistake"
+        , "Weapon of Choice"
+        , "Invention"
+        ]
+        []
   in
     Random.map2 (\a b -> a ++ "'s " ++ b) person situation
 
@@ -59,9 +123,17 @@ generate =
   pickStrings [] [ genName1, genName2 ]
 
 
-typeface : Generator String
+typeface : Generator (List String)
 typeface =
-  pickStrings [ "Copperplate", "Luminari", "Herculanum" ] []
+  let
+    fonts =
+      [ "Papyrus", "Copperplate", "Luminari", "Herculanum" ]
+  in
+    Random.int 1 (List.length fonts)
+      |> Random.map
+          (\i ->
+            List.drop i fonts ++ List.take i fonts
+          )
 
 
 
