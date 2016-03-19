@@ -74,6 +74,9 @@ genName1 =
         , "Invisibility"
         , "Electricity"
         , "Misfortune"
+        , "Knowledge"
+        , "Longevity"
+        , "Summoning"
         ]
         []
   in
@@ -116,6 +119,8 @@ genName2 =
         , "Mistake"
         , "Weapon of Choice"
         , "Invention"
+        , "Delight"
+        , "Secret"
         ]
         []
   in
@@ -138,55 +143,3 @@ typeface =
           (\i ->
             List.drop i fonts ++ List.take i fonts
           )
-
-
-
-{-
-   type alias Model =
-     { name : String
-     , seed : Seed
-     }
-
-
-   init : Model
-   init =
-     let
-       seed =
-         Random.initialSeed2 734080189 3044306560
-     in
-       uncurry Model <| Random.generate genName seed
-
-
-   type Action
-     = Regen
-
-
-   actions =
-     Signal.filterMap
-       (\b ->
-         if b then
-           Just Regen
-         else
-           Nothing
-       )
-       Regen
-       Keyboard.space
-
-
-   update : Action -> Model -> Model
-   update _ { seed } =
-     uncurry Model <| Random.generate genName seed
-
-
-   model : Signal Model
-   model =
-     Signal.foldp update init actions
-
-
-   view { name } =
-     Graphics.Element.show name
-
-
-   main =
-     Signal.map view model
--}
