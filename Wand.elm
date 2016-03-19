@@ -17,6 +17,7 @@ type Embellishment
   | HiltLine Color
   | Crossguard Color
   | Bulb Color
+  | Pentagram Color
 
 
 type alias Wand =
@@ -66,8 +67,8 @@ genEmbellishment { primary, accent } =
         8 ->
           Bulb clr
 
-        9 ->
-          EndGrips
+        10 ->
+          Pentagram clr
 
         _ ->
           Plain
@@ -75,7 +76,7 @@ genEmbellishment { primary, accent } =
     Random.map2
       choose
       (Random.choice primary accent)
-      (Random.int 0 10)
+      (Random.int 0 12)
 
 
 {-| Not all embellishments look good on thin wands.
@@ -240,6 +241,13 @@ embellishmentForm wand =
         |> Collage.group
         |> Collage.moveX (0.5 * wand.length)
 
+    Pentagram clr ->
+      [ pentagram (7 * wand.width) |> filled wand.primary
+      , pentagram (4 * wand.width) |> filled clr
+      ]
+        |> Collage.group
+        |> Collage.moveX (0.5 * wand.length)
+
     _ ->
       Collage.group []
 
@@ -268,3 +276,23 @@ bulb =
       List.map (\( x, y ) -> ( x, -y )) >> List.reverse
   in
     sec1 ++ sec2 ++ mirror sec2 ++ mirror sec1
+
+
+pentagram : Float -> Collage.Shape
+pentagram len =
+  -- http://mathworld.wolfram.com/Pentagram.html
+  let
+    rFor i =
+      if i % 2 == 0 then
+        -- rho
+        0.525731
+      else
+        -- R
+        0.200811
+  in
+    List.indexedMap
+      (\i ang ->
+        fromPolar ( len * rFor i, turns (ang / 10) )
+      )
+      [0..9]
+      |> Collage.polygon
