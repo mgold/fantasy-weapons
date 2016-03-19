@@ -43,8 +43,13 @@ setup =
         --spawnProb generator
         (Random.map Random.oneIn <| Random.int 1 7)
         --growth factor
-        (Random.oneIn 10 `Random.andThen` \b ->
-          if b then Random.choice 1.5 1.001 else Random.float 1.01 1.3)
+        (Random.oneIn 10
+          `Random.andThen` \b ->
+                            if b then
+                              Random.choice 1.5 1.001
+                            else
+                              Random.float 1.01 1.3
+        )
   in
     Random.map3
       (\f hue dhue ->
@@ -62,7 +67,7 @@ init sprayAngle { maxRadius, spreadAngle, growth, primary, accent } =
       Particle 1 maxR growth ( 0, 0 ) (fromPolar polarVel) clr
 
     angle =
-      Random.float (sprayAngle-spreadAngle) (sprayAngle+spreadAngle)
+      Random.float (sprayAngle - spreadAngle) (sprayAngle + spreadAngle)
 
     rad =
       Random.float 0.02 0.1

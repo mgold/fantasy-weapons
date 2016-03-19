@@ -16,6 +16,7 @@ type Embellishment
   | BladeLine Color
   | HiltLine Color
   | Crossguard Color
+  | Bulb Color
 
 
 type alias Wand =
@@ -60,6 +61,12 @@ genEmbellishment { primary, accent } =
           Crossguard clr
 
         7 ->
+          Bulb clr
+
+        8 ->
+          Bulb clr
+
+        9 ->
           EndGrips
 
         _ ->
@@ -68,7 +75,7 @@ genEmbellishment { primary, accent } =
     Random.map2
       choose
       (Random.choice primary accent)
-      (Random.int 0 9)
+      (Random.int 0 10)
 
 
 {-| Not all embellishments look good on thin wands.
@@ -94,8 +101,16 @@ verifyEmbellishment wand =
 particleOrigin : Time -> Wand -> ( ( Float, Float ), Float )
 particleOrigin t wand =
   let
+    embellishmentX =
+      case wand.embellishment of
+        Bulb _ ->
+          2 * wand.width
+
+        _ ->
+          0
+
     r =
-      wand.length * 0.9
+      wand.length * 0.9 + embellishmentX
 
     theta =
       wandAngle t
@@ -214,5 +229,42 @@ embellishmentForm wand =
         |> Collage.group
         |> Collage.moveX (-wand.length * 0.2)
 
+    Bulb clr ->
+      -- TODO - not compute this every frame? Not compute all of these every frame?
+      [ bulb
+          |> List.map (\( x, y ) -> ( wand.width * x * 2.2, wand.width * y ))
+          |> Collage.polygon
+          |> filled wand.primary
+      , circle (0.8 * wand.width) |> filled clr |> Collage.moveX (2 * wand.width)
+      ]
+        |> Collage.group
+        |> Collage.moveX (0.5 * wand.length)
+
     _ ->
       Collage.group []
+
+
+bulb : List ( Float, Float )
+bulb =
+  let
+    sample start f =
+      List.map
+        (\s ->
+          let
+            x =
+              start + s / 20
+          in
+            ( x, f x )
+        )
+        [0..20]
+
+    sec1 =
+      sample 0 (\x -> -0.5 * cos (pi * x) + 1)
+
+    sec2 =
+      sample 1 (\x -> 0.75 * cos (pi * (x + 1)) + 0.75)
+
+    mirror =
+      List.map (\( x, y ) -> ( x, -y )) >> List.reverse
+  in
+    sec1 ++ sec2 ++ mirror sec2 ++ mirror sec1
