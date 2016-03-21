@@ -1,8 +1,7 @@
 module Names (generate, typeface) where
 
 import Random.PCG as Random exposing (Seed, Generator)
-import Graphics.Element
-import Keyboard
+import String
 
 
 pickOne : List (Generator String) -> Generator String
@@ -77,6 +76,10 @@ genName1 =
         , "Knowledge"
         , "Longevity"
         , "Summoning"
+        , "Desire"
+        , "Order"
+        , "Chaos"
+        , "Balance"
         ]
         []
   in
@@ -127,9 +130,20 @@ genName2 =
     Random.map2 (\a b -> a ++ "'s " ++ b) person situation
 
 
-generate : Generator String
-generate =
-  pickStrings [] [ genName1, genName2 ]
+generate : String -> Generator String
+generate lastVal =
+  let
+    forbiddenWords =
+      String.words lastVal
+        |> List.filter (\w -> w /= "The" && w /= "of")
+  in
+    pickStrings [] [ genName1, genName2 ]
+      |> Random.filter
+          (\s ->
+            String.length s
+              < 37
+              && not (List.any (\forbidden -> String.contains forbidden s) forbiddenWords)
+          )
 
 
 typeface : Generator (List String)

@@ -28,8 +28,8 @@ type alias Model =
   }
 
 
-init : Seed -> Model
-init seed =
+init : String -> Seed -> Model
+init oldName seed =
   let
     baseModel ( system, wand ) =
       Model 0 [] system wand
@@ -39,7 +39,7 @@ init seed =
       Particle.setup `Random.andThen` (\sys -> Wand.init sys |> Random.map (\wep -> ( sys, wep )))
 
     gen =
-      Random.map3 baseModel genSystemAndwand Names.generate Names.typeface
+      Random.map3 baseModel genSystemAndwand (Names.generate oldName) Names.typeface
 
     ( seedToModel, seed1 ) =
       Random.generate gen seed
@@ -75,7 +75,7 @@ update : Action -> Model -> Model
 update action model =
   case action of
     Regen ->
-      init model.seed
+      init model.name model.seed
 
     Tick dt ->
       { model
@@ -117,8 +117,12 @@ model =
   let
     seed =
       Random.initialSeed2 734080189 3044306560
+
+    oldName =
+      -- a word the generator will never produce
+      "foo"
   in
-    Signal.foldp update (init seed) actions
+    Signal.foldp update (init oldName seed) actions
 
 
 view model =
